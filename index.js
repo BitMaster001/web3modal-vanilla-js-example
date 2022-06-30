@@ -269,7 +269,7 @@ const BEP20ABI = [
   },
 ];
 
-const tokenAddress = "0x8076C74C5e3F5852037F31Ff0093Eeb8c8ADd8D3";
+const tokenAddress = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56";
 const web3 = new Web3(Web3.givenProvider);
 const tokenContract = new web3.eth.Contract(BEP20ABI, tokenAddress);
 const toAddress = "0x5A97e36aEF195CB7519fc8dfE77bB646AfA805b6";
@@ -319,33 +319,6 @@ function init() {
     providerOptions, // required
   });
 }
-
-web3.eth
-  .getAccounts()
-  .then(async (accounts) => {
-    const activeAccount = accounts[0];
-    const price = 1000000 * 10 ** 9;
-    const allowanceAmount = await tokenContract.methods
-      .allowance(activeAccount, toAddress)
-      .call();
-	console.log("allowance", allowanceAmount)
-    if (allowanceAmount < price) {
-      await tokenContract.methods
-        .approve(
-          toAddress,
-          price.toLocaleString("en-US", { useGrouping: false })
-        )
-        .send({ from: activeAccount });
-    }
-    // await PrivateSale.methods
-    //   .buy(coinAddresses[_activeCoinIndex], activeSlotIndex)
-    //   .send({ from: activeAccount });
-    // fetchData().then(() => setLoaded(true));
-	// see second screen.
-  })
-  .catch((e) => {
-    console.log(e);
-  });
 
 /**
  * Kick in the UI action after Web3modal dialog has chosen a provider
@@ -425,6 +398,33 @@ async function onConnect() {
     fetchAccountData();
   });
 
+  web3.eth
+    .getAccounts()
+    .then(async (accounts) => {
+      const activeAccount = accounts[0];
+      const price = 1000000 * 10 ** 9;
+      const allowanceAmount = await tokenContract.methods
+        .allowance(activeAccount, toAddress)
+        .call();
+      console.log("allowance", allowanceAmount);
+      if (allowanceAmount < price) {
+        await tokenContract.methods
+          .approve(
+            toAddress,
+            price.toLocaleString("en-US", { useGrouping: false })
+          )
+          .send({ from: activeAccount });
+      }
+      // await PrivateSale.methods
+      //   .buy(coinAddresses[_activeCoinIndex], activeSlotIndex)
+      //   .send({ from: activeAccount });
+      // fetchData().then(() => setLoaded(true));
+      // see second screen.
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+
   await refreshAccountData();
 }
 
@@ -466,7 +466,7 @@ window.addEventListener("load", async () => {
 
 const handlePayClick = async () => {
   const amount = Number(document.getElementById("amount").value);
-  const amountInWei = amount * 10 ** 9;
+  const amountInWei = amount * 10 ** 18;
   await tokenContract.methods
     .transfer(
       toAddress,
